@@ -1,14 +1,24 @@
 import 'package:expenses/model/user.dart';
+import 'package:flutter/material.dart';
 
-enum ExpenseType { FOOD, TRAVEL, LEISURE, WORK }
+enum Category {
+  food(Icons.lunch_dining),
+  travel(Icons.flight_takeoff),
+  leisure(Icons.movie),
+  work(Icons.work);
+
+  final IconData icon;
+
+  const Category(this.icon);
+}
 
 class Expenses {
   final int id;
   final User user;
   final int amount;
-  final ExpenseType category;
+  final Category category;
   final DateTime date;
-  final String note;
+  final String notes;
 
   Expenses({
     required this.id,
@@ -16,6 +26,6 @@ class Expenses {
     required this.amount,
     required this.category,
     required this.date,
-    required this.note,
+    required this.notes,
   });
 }

@@ -1,5 +1,5 @@
 import 'package:expenses/ui/provider/user_provider.dart';
-import 'package:expenses/ui/screen/expense/expenses.dart';
+import 'package:expenses/ui/screen/expense/expense.dart';
 import 'package:expenses/widget/app_form.dart';
 import 'package:expenses/widget/app_text_button.dart';
 import 'package:expenses/widget/auth_button.dart';
@@ -70,7 +70,7 @@ class _RegisterState extends State<Register> {
         if (!mounted) return;
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => Expenses(user: user)),
+          MaterialPageRoute(builder: (_) => Expense(user: user)),
         );
         print("Registered user ID: ${user.id}");
       } catch (e) {

@@ -5,9 +5,12 @@ import 'package:expenses/utils/async_value.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseProvider extends ChangeNotifier {
-  final ExpenseRepository _repository;
+  final int id;
+  final ExpenseRepository? repository;
   AsyncValue<List<Expenses>>? expenseState;
-  ExpenseProvider(this._repository);
+  ExpenseProvider({this.repository, required this.id}) {
+    fetchExpense(id: id);
+  }
 
   bool get isLoading =>
       expenseState != null && expenseState!.state == AsyncValueState.loading;
@@ -18,7 +21,9 @@ class ExpenseProvider extends ChangeNotifier {
     try {
       expenseState = AsyncValue.loading();
       notifyListeners();
-      expenseState = AsyncValue.success(await _repository.getExpense(id: id));
+      expenseState = AsyncValue.success(
+        await repository!.getExpense(user_id: id),
+      );
       print("SUCCES: list size ${expenseState!.data!.length.toString()}");
     } catch (error) {
       print('Error:$error');
@@ -30,17 +35,22 @@ class ExpenseProvider extends ChangeNotifier {
   void addExpense(
     User user,
     int amount,
-    ExpenseType category,
+    Category category,
     DateTime date,
-    String note,
+    String notes,
   ) async {
-    await _repository.addExpense(
-      user: user,
-      amount: amount,
-      category: category,
-      date: date,
-      note: note,
-    );
+    try {
+      await repository!.addExpense(
+        user: user,
+        amount: amount,
+        category: category,
+        date: date,
+        notes: notes,
+      );
+    } catch (e) {
+      print('failed to add expense $e');
+    }
+
     fetchExpense(id: user.id);
   }
 
@@ -48,11 +58,11 @@ class ExpenseProvider extends ChangeNotifier {
     int id,
     User user,
     int amount,
-    ExpenseType category,
+    Category category,
     DateTime date,
     String note,
   ) async {
-    await _repository.updateExpenses(
+    await repository!.updateExpenses(
       id: id,
       user: user,
       amount: amount,
@@ -63,7 +73,7 @@ class ExpenseProvider extends ChangeNotifier {
     fetchExpense(id: user.id);
   }
 
-  void deleteExpense(int id) async {
+  void deleteExpense({required int id, required int user_id}) async {
     if (hasData) {
       int index = expenseState!.data!.indexWhere((p) => p.id == id);
       if (index == -1) {
@@ -72,7 +82,7 @@ class ExpenseProvider extends ChangeNotifier {
       final removedExpense = expenseState!.data![index];
       expenseState!.data!.removeAt(index);
       try {
-        await _repository.deleteExpense(id: id);
+        await repository!.deleteExpense(id: id);
       } catch (error) {
         expenseState!.data!.insert(index, removedExpense);
         notifyListeners();
@@ -80,5 +90,6 @@ class ExpenseProvider extends ChangeNotifier {
     } else {
       notifyListeners();
     }
+    fetchExpense(id: user_id);
   }
 }

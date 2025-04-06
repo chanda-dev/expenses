@@ -9,15 +9,15 @@ import 'package:expenses/repository/user_repository.dart';
 import 'package:http/http.dart' as http;
 
 class SqliteExpenseRepo extends ExpenseRepository {
-  static const String baseUrl = "http://localhost:5000/api/expense";
+  static const String baseUrl = "http://localhost:5000/expense";
   final Uri uri = Uri.parse(baseUrl);
   @override
   Future<Expenses> addExpense({
     required User user,
     required int amount,
-    required ExpenseType category,
+    required Category category,
     required DateTime date,
-    required String note,
+    required String notes,
   }) async {
     try {
       final newExpense = {
@@ -25,10 +25,11 @@ class SqliteExpenseRepo extends ExpenseRepository {
         'amount': amount,
         'category': category.toString(),
         'date': date.toIso8601String(),
-        'notes': note,
+        'notes': notes,
       };
+      Uri uriAdd = Uri.parse('$baseUrl/');
       final http.Response response = await http.post(
-        uri,
+        uriAdd,
         headers: {'Content-Type': 'application/json'},
         body: json.encode(newExpense),
       );
@@ -36,17 +37,17 @@ class SqliteExpenseRepo extends ExpenseRepository {
           response.statusCode == HttpStatus.ok) {
         final responseData = json.decode(response.body);
         return Expenses(
-          id: responseData['id'] ?? responseData['username'],
+          id: responseData['id'],
           user: user,
           amount: amount,
           category: category,
           date: date,
-          note: note,
+          notes: notes,
         );
       }
       throw Exception('Failed to register: ${response.statusCode}');
     } catch (e) {
-      throw Exception('add expense fail');
+      throw Exception('add expense failed $e');
     }
   }
 
@@ -66,20 +67,19 @@ class SqliteExpenseRepo extends ExpenseRepository {
   }
 
   @override
-  Future<List<Expenses>> getExpense({required int id}) async {
-    Uri uriGet = Uri.parse('$baseUrl/user/$id');
+  Future<List<Expenses>> getExpense({required int user_id}) async {
+    Uri uriGet = Uri.parse('$baseUrl/user/$user_id');
     final http.Response response = await http.get(uriGet);
-
-    // Handle errors
-    if (response.statusCode != HttpStatus.ok &&
-        response.statusCode != HttpStatus.created) {
-      throw Exception('Failed to load');
+    if (response.statusCode == HttpStatus.ok ||
+        response.statusCode == HttpStatus.created) {
+      final List<dynamic> jsonList = json.decode(response.body);
+      return jsonList
+          .map((jsonItem) => ExpenseDto.fromJson(jsonItem['id'], jsonItem))
+          .toList();
     }
-    final data = json.decode(response.body) as Map<String, dynamic>?;
-    if (data == null) return [];
-    return data.entries
-        .map((entry) => ExpenseDto.fromJson(int.parse(entry.key), entry.value))
-        .toList();
+    throw Exception(
+      'Failed to load expenses: ${response.statusCode} ${response.body}',
+    );
   }
 
   @override
@@ -87,7 +87,7 @@ class SqliteExpenseRepo extends ExpenseRepository {
     required int id,
     required User user,
     required int amount,
-    required ExpenseType category,
+    required Category category,
     required DateTime date,
     required String note,
   }) async {
@@ -117,7 +117,7 @@ class SqliteExpenseRepo extends ExpenseRepository {
       amount: amount,
       category: category,
       date: date,
-      note: note,
+      notes: note,
     );
   }
 }

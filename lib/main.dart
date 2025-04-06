@@ -1,7 +1,6 @@
 import 'package:expenses/repository/sqlite_user_repo.dart';
 import 'package:expenses/ui/provider/user_provider.dart';
 import 'package:expenses/ui/screen/auth/auth.dart';
-import 'package:expenses/ui/screen/auth/register/register.dart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

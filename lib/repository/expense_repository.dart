@@ -6,11 +6,11 @@ abstract class ExpenseRepository {
   Future<Expenses> addExpense({
     required User user,
     required int amount,
-    required ExpenseType category,
+    required Category category,
     required DateTime date,
-    required String note,
+    required String notes,
   });
-  Future<List<Expenses>> getExpense({required int id});
+  Future<List<Expenses>> getExpense({required int user_id});
 
   Future<http.Response> deleteExpense({required int id});
 
@@ -18,7 +18,7 @@ abstract class ExpenseRepository {
     required int id,
     required User user,
     required int amount,
-    required ExpenseType category,
+    required Category category,
     required DateTime date,
     required String note,
   });

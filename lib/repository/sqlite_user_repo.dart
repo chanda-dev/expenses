@@ -20,7 +20,7 @@ class SqliteUserRepo extends UserRepository {
       final newUser = {
         'username': username,
         'email': email,
-        'password': password, // raw password as expected by your backend
+        'password': password,
       };
       final http.Response response = await http.post(
         uriRegis,
