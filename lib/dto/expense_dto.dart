@@ -1,14 +1,14 @@
 import 'package:expenses/model/expenses.dart';
 
 class ExpenseDto {
-  static Expenses fronJson(Map<String, dynamic> json) {
+  static Expenses fromJson(int id, Map<String, dynamic> json) {
     return Expenses(
       id: json['id'],
       user: json['user'],
       amount: json['amount'],
       category: json['category'],
-      date: json['date'],
-      note: json['note'],
+      date: DateTime.parse(json['date']),
+      note: json['notes'],
     );
   }
 
@@ -18,8 +18,8 @@ class ExpenseDto {
       'user': expenses.user,
       'amount': expenses.amount,
       'category': expenses.category,
-      'date': expenses.date,
-      'note': expenses.note,
+      'date': expenses.date.toIso8601String(),
+      'notes': expenses.note,
     };
   }
 }
